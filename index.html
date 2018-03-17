@@ -1,41 +1,11 @@
 <!DOCTYPE html>
+<html>
+<h1>Turkey's City Migration Statistics 2009 - 2016</h1>
+</html>
 <meta charset="utf-8">
 <element onmouseover="myScript">
 <style>
-/*
-path {
-  fill: #EDF8FB;
-  stroke: #41083e;
-  stroke-width: 0.5;
-}
 
-path:hover {
-  fill: red;
-}
-
-body {
-    position: absolute;
-    font-family: "Proxima Nova", "Montserrat", sans-serif;
-}
-h1, h2 {
-    position: absolute;
-    left: 10px;
-    font-size: 1.3em;
-    font-weight: 100;
-}
-h2 {
-    top: 30px;
-    font-size: 1em;
-}
-
-.incident{
-  fill: #EDF8FB;
-}
-
-.hover {
-    fill: yellow;
-}
-*/
 
 
 div.tooltip {
@@ -59,17 +29,20 @@ div.tooltip {
 
 <script>
 
-var width = 960,
-    height = 960;
+
+
+
+var width = 1500,
+    height = 700;
 
 var svg = d3.select("body").append("svg")
             .attr("width",width)
             .attr("height",height);
 
 var projection = d3.geo.mercator()
-                    .scale(2500)
+                    .scale(3400)
                     .rotate( [71.057,0] )
-                    .center( [105, 42.313] )
+                    .center( [105, 39.000] )
                     .translate( [width/2,height/2] );
 
 var path = d3.geo.path()
@@ -101,12 +74,39 @@ d3.json("cities_of_turkey.json",function(error,data){
   }
 });
 
+var comingDataName = "ninecoming.csv";
+var goingDataName = "ninegoing.csv";
 
-d3.csv("thirteencoming.csv", function(data){
+
+
+
+
+
+
+var yearOptions = ["2009","2010","2011","2012","2013","2014","2015","2016"];
+
+var selectYear = d3.select("body")
+    .append("select")
+    .attr("id", "yearOpt")
+    .on("change", onChangeYear);
+
+var YearSelection = selectYear
+    .selectAll("option")
+    .data(yearOptions).enter()
+    .append("option")
+    .text(function(d){  return d; });
+
+
+
+
+
+
+
+d3.csv(comingDataName, function(data){
   coming = data;
 });
 
-d3.csv("thirteengoing.csv", function(data){
+d3.csv(goingDataName, function(data){
   going = data;
   d3.json("statestopo.json", function(error,topology){
     if(error) return console.error(error);
@@ -208,7 +208,7 @@ d3.csv("thirteengoing.csv", function(data){
       if(geojson.features[k].properties.state == comingData[4][0]){min5 = geojson.features[k].id}
 
     }
-/*
+
     links.push({
       type:"LineString",
       coordinates: [
@@ -243,26 +243,12 @@ d3.csv("thirteengoing.csv", function(data){
         [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
         [geojson.features[max5-1].properties.longitude,geojson.features[max5-1].properties.latitude]
       ]
-    });*/
-    links.push({
-      type:"LineString",
-      coordinates: [
-        [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
-        [geojson.features[min5-1].properties.longitude,geojson.features[min5-1].properties.latitude]
-      ]
     });
     links.push({
       type:"LineString",
       coordinates: [
         [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
-        [geojson.features[min4-1].properties.longitude,geojson.features[min4-1].properties.latitude]
-      ]
-    });
-    links.push({
-      type:"LineString",
-      coordinates: [
-        [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
-        [geojson.features[min3-1].properties.longitude,geojson.features[min3-1].properties.latitude]
+        [geojson.features[min1-1].properties.longitude,geojson.features[min1-1].properties.latitude]
       ]
     });
     links.push({
@@ -276,13 +262,43 @@ d3.csv("thirteengoing.csv", function(data){
       type:"LineString",
       coordinates: [
         [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
-        [geojson.features[min1-1].properties.longitude,geojson.features[min1-1].properties.latitude]
+        [geojson.features[min3-1].properties.longitude,geojson.features[min3-1].properties.latitude]
+      ]
+    });
+    links.push({
+      type:"LineString",
+      coordinates: [
+        [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+        [geojson.features[min4-1].properties.longitude,geojson.features[min4-1].properties.latitude]
+      ]
+    });
+    links.push({
+      type:"LineString",
+      coordinates: [
+        [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+        [geojson.features[min5-1].properties.longitude,geojson.features[min5-1].properties.latitude]
       ]
     });
 
 
     geojson.features[i].properties["links"] = links;
   }
+
+
+
+
+  var lineOptions = ["Max 5 Emigration","Max 5 Immigration"];
+
+  var selectLine = d3.select("body")
+      .append("select")
+      .attr("id", "lineOpt");
+
+  var lineSelection = selectLine
+      .selectAll("option")
+      .data(lineOptions).enter()
+      .append("option")
+      .text(function(d){  return d; });
+
 
 
   svg.selectAll("path")
@@ -335,128 +351,418 @@ d3.csv("thirteengoing.csv", function(data){
     });
   });
 
-function clicked(selected){
-  /*var selname = selected.properties.state;
-
-  var startCoord = projection(selected.properties.links[0].coordinates[0]);
-  var endCoord = projection(selected.properties.links[0].coordinates[1]);
-
-/*
-  d3.select("body").append("svg").append("line")
-                    .attr("x1", startCoord[0])
-                    .attr("y1", startCoord[1])
-                    .attr("x2", endCoord[0])
-                    .attr("y2", endCoord[1]);
-*/
-/*
-  var link = {
-    type: "LineString",
-    coordinates: [
-      [startCoord[0], startCoord[1]],
-      [endCoord[0], endCoord[1]]
-    ]};
-*/
-/*
-  svg.append("path")
-      .datum(selected.properties.links[0])
-      .attr("d", path)
-      .style({'fill': '#00C60C', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#08760A', 'stroke-linejoin': 'round'});
-
-  svg.append("path")
-      .datum(selected.properties.links[1])
-      .attr("d", path)
-      .style({'fill': '#00C60C', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#08760A', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[2])
-      .attr("d", path)
-      .style({'fill': '#00C60C', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#08760A', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[3])
-      .attr("d", path)
-      .style({'fill': '#00C60C', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#08760A', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[4])
-      .attr("d", path)
-      .style({'fill': '#00C60C', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#08760A', 'stroke-linejoin': 'round'});
-  */svg.append("path")
-      .datum(selected.properties.links[0])
-      .attr("d", path)
-      .style({'fill': '#FFE801', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#FFE801', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[1])
-      .attr("d", path)
-      .style({'fill': '#FFE801', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#FFE801', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[2])
-      .attr("d", path)
-      .style({'fill': '#FFE801', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#FFE801', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[3])
-      .attr("d", path)
-      .style({'fill': '#FFE801', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#FFE801', 'stroke-linejoin': 'round'});
-  svg.append("path")
-      .datum(selected.properties.links[4])
-      .attr("d", path)
-      .style({'fill': '#FFE801', 'fill-opacity': 0.1})
-      .style({'stroke-width': 4, 'stroke': '#FFE801', 'stroke-linejoin': 'round'});
 
 
-/*
-  paths.enter()
-      .append("path")
-      .attr({
-        'class': 'arc'
-      }).style({
-        stroke: '#0000ff',
-        'stroke-width': '2px'
+
+function onChangeYear(){
+
+    d3.selectAll("path").remove();
+
+    var yOption = document.getElementById("yearOpt");
+    var year = yOption.options[yOption.selectedIndex].value;
+
+    var comingDataName;
+    var goingDataName;
+    if(year == 2009){ comingDataName = "ninecoming.csv";  goingDataName = "ninegoing.csv";}
+    else if (year == 2010) { comingDataName = "tencoming.csv";  goingDataName = "tengoing.csv";}
+    else if (year == 2011) { comingDataName = "elevencoming.csv";  goingDataName = "elevengoing.csv";}
+    else if (year == 2012) { comingDataName = "twelvecoming.csv";  goingDataName = "twelvegoing.csv";}
+    else if (year == 2013) { comingDataName = "thirteencoming.csv";  goingDataName = "thirteengoing.csv";}
+    else if (year == 2014) { comingDataName = "fourteencoming.csv";  goingDataName = "fourteengoing.csv";}
+    else if (year == 2015) { comingDataName = "fifteencoming.csv";  goingDataName = "fifteengoing.csv";}
+    else{ comingDataName = "sixteencoming.csv";  goingDataName = "sixteengoing.csv";}
+
+
+
+    d3.csv(comingDataName, function(data){
+      coming = data;
+    });
+
+    d3.csv(goingDataName, function(data){
+      going = data;
+      d3.json("statestopo.json", function(error,topology){
+        if(error) return console.error(error);
+
+        var geojson = topojson.feature(topology, topology.objects.states);
+        console.log("geojson", geojson)
+
+
+      for(var i=0;i<data.length;i++){
+        var dataName = data[i].state;
+        var tempObj = {};
+        for(var propt in data[i]){
+          var valz = parseInt(data[i][propt]);
+          if(propt == "color"){
+            tempObj[propt] = data[i].color;
+          }
+          else{
+            if(isNaN(valz)){
+              tempObj[propt] = data[i].state;
+            }
+            else tempObj[propt] = valz;
+          }
+        }
+
+        for(var j=0;j<geojson.features.length;j++){
+          var jsonState = geojson.features[j].properties.state;
+
+          if(dataName == jsonState){
+            matched = true;
+            geojson.features[j].properties.state = dataName;
+            geojson.features[j].id = dataName;
+            geojson.features[j].id = data[i].id;
+            geojson.features[j].ind = i;
+            for(var propt in tempObj){
+              if(!isNaN(tempObj[propt])){
+                geojson.features[j].properties[propt] = tempObj[propt];
+              }
+              else if(propt == "color"){
+                geojson.features[j].properties["color"] = tempObj[propt];
+              }
+            }
+            break;
+          }
+        }
+        for(var j=0;j<geojson.features.length;j++){
+          var check = true;
+          for(var k=0;j<turkey.length && check;k++){
+            if(geojson.features[j].id == turkey[k].id){
+              geojson.features[j].properties["latitude"] = turkey[k].latitude;
+              geojson.features[j].properties["longitude"] = turkey[k].longitude;
+              var text = geojson.features[j].properties.state+"<br/>"+"Total Immigration: "+
+                        geojson.features[j].properties.total_imm+"<br/>"+"Total Emmigration: "+
+                        geojson.features[j].properties.total_emm+"<br/>"+"Net Migration: "+
+                        (geojson.features[j].properties.total_imm-geojson.features[j].properties.total_emm);
+              geojson.features[j].properties["text"] = text;
+              check = false;
+            }
+          }
+        }
+      }
+
+      //Arcs between states
+      for(var i=0;i<geojson.features.length;i++){
+        var goingData = [];
+        var comingData = [];
+        for(a in geojson.features[i].properties){
+          if(a != "diff" && a != "color" && a != "total_emm" && a != "total_imm" && a!= "id" && a != "state" && a!= "text" && a != "longitude" && a!= "latitude"){
+            goingData.push([a,geojson.features[i].properties[a]])
+          }
+        }
+        goingData.sort(function(a,b){
+          return a[1] - b[1]
+        });
+        goingData.reverse();
+
+        for(b in coming[i]){
+          if(coming[i][b] != 0 && b != "id" && b != "state"){
+            comingData.push([b,coming[i][b]])
+          }
+        }
+
+        comingData.sort(function(a,b){
+          return a[1]-b[1]
+        });
+        comingData.reverse();
+        var links = [];
+        //Max Values
+        var max1,max2,max3,max4,max5,min5,min4,min3,min2,min1;
+        for(var k=0;k<geojson.features.length;k++){
+          if(geojson.features[k].properties.state == goingData[0][0]){max1 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == goingData[1][0]){max2 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == goingData[2][0]){max3 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == goingData[3][0]){max4 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == goingData[4][0]){max5 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == comingData[0][0]){min1 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == comingData[1][0]){min2 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == comingData[2][0]){min3 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == comingData[3][0]){min4 = geojson.features[k].id}
+          if(geojson.features[k].properties.state == comingData[4][0]){min5 = geojson.features[k].id}
+
+        }
+
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[max1-1].properties.longitude,geojson.features[max1-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[max2-1].properties.longitude,geojson.features[max2-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[max3-1].properties.longitude,geojson.features[max3-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[max4-1].properties.longitude,geojson.features[max4-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[max5-1].properties.longitude,geojson.features[max5-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[min1-1].properties.longitude,geojson.features[min1-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[min2-1].properties.longitude,geojson.features[min2-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[min3-1].properties.longitude,geojson.features[min3-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[min4-1].properties.longitude,geojson.features[min4-1].properties.latitude]
+          ]
+        });
+        links.push({
+          type:"LineString",
+          coordinates: [
+            [geojson.features[i].properties.longitude,geojson.features[i].properties.latitude],
+            [geojson.features[min5-1].properties.longitude,geojson.features[min5-1].properties.latitude]
+          ]
+        });
+
+
+        geojson.features[i].properties["links"] = links;
+      }
+
+
+      svg.selectAll("path")
+          .data(geojson.features)
+          .enter()
+          .append("path")
+          .attr("id",function(d){
+            return d.properties.state;
+          })
+          .attr("d",path)
+          .attr("stroke-width", 0.5)
+          .style("stroke", "#666")
+          .style("fill",function(d){
+              var value = d.properties.color;
+              if (value) {
+                return value;
+              } else {
+                return "#ccc";
+              }
+          })
+          .attr("class","incident")
+          .on("mouseover",function(d){
+            d3.select(this)
+              .style({"fill":"#EDF8FB"})
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div.html(d.properties.text)
+                  .style("left", d3.event.pageX-100+"px")
+                  .style("top", d3.event.pageY-100+"px")
+                  .style("z-index","10");
+            //d3.select("h2").text(text);
+            //d3.select(this).attr("class","incident hover");
+          })
+          .on("mouseout",function(d){
+            div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            d3.select(this)
+              .style("fill",d.properties.color);
+          })
+          .on("mousemove", function(d) {
+            div.html(d.properties.text)
+                  .style("left", d3.event.pageX-100+"px")
+                  .style("top", d3.event.pageY-100+"px")
+                  .style("z-index","10");
+          })
+          .on("click",function(d){clicked(d)})
+          .style("opacity", 0.1)
+          .transition()
+          .duration(1000)
+          .style("opacity", 1);
+
+        });
       });
-/*
-  /*svg.selectAll("line")
-      .attr("stroke-dasharray",0)
-      .remove()
-
-  svg.selectAll("line")
-      .append("line")
-      .style("stroke","green")
-      .attr("x1",homex)
-      .attr("y1",homey)
-      .attr("x2",homex-1)
-      .attr("y2",homey-1)*/
-
-      /*.attr("x2",function(selected){
-        for(var i=0;i<selected.length)
-      })*/
+  }
 
 
-      //.data(going)
-      //.enter().append("path")
-      //.attr("class","goingline")
-    //  .attr("d",function(d,i){
-    //    var id = d.id;
-    //    var finalval = coming[i][selname] - going[i][selname];
+function clicked(selected){
 
 
-  /*if(!isNaN(finalval)){
-    var startx = selected[id-1].properties.longitude;
-    var starty = selected[id-1].properties.latitude;
-    if(finalval>0){
-      return "M" + startx + "," + starty + " Q" + (startx + homex)/2 + " " + (starty + homey)/1.5 +" " + homex+" "   + homey;
-    }
-    else{
-      return "M" + homex + "," + homey + " Q" + (startx + homex)/2 + " " + (starty + homey)/2.5 +" " + startx+" "   + starty;
-    }
-  }*/
-    //  })
-      //.call(transition)
+  d3.selectAll("path.minline").remove();
+  d3.selectAll("path.maxline").remove();
+
+  var lOption = document.getElementById("lineOpt");
+  var val = lOption.options[lOption.selectedIndex].value;
+
+  //EMIGRATION
+  if(val == "Max 5 Emigration"){
+    svg.append("path")
+        .datum(selected.properties.links[0])
+        .attr("d", path)
+        .attr("class", "maxline")
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke-width': 15, 'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+
+    svg.append("path")
+        .datum(selected.properties.links[1])
+        .attr("d", path)
+        .attr("class", "maxline")
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#fff', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke-width': 12, 'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+    svg.append("path")
+        .datum(selected.properties.links[2])
+        .attr("d", path)
+        .attr("class", "maxline")
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(2000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke-width': 9, 'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+    svg.append("path")
+        .datum(selected.properties.links[3])
+        .attr("d", path)
+        .attr("class", "maxline")
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(3000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke-width': 6.5, 'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+    svg.append("path")
+        .datum(selected.properties.links[4])
+        .attr("d", path)
+        .attr("class", "maxline")
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(4000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+        .transition()
+        .duration(1000)
+        .style({'fill': '#00C60C', 'fill-opacity': 0.01})
+        .style({'stroke-width': 4, 'stroke': '#A4A4A4', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+  }
+
+  if(val == "Max 5 Immigration"){
+    //IMMIGRATION
+      svg.append("path")
+          .datum(selected.properties.links[5])
+          .attr("d", path)
+          .attr("class", "minline")
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke-width': 15, 'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+      svg.append("path")
+          .datum(selected.properties.links[6])
+          .attr("d", path)
+          .attr("class", "minline")
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke-width': 12, 'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+      svg.append("path")
+          .datum(selected.properties.links[7])
+          .attr("d", path)
+          .attr("class", "minline")
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(2000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke-width': 9, 'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+      svg.append("path")
+          .datum(selected.properties.links[8])
+          .attr("d", path)
+          .attr("class", "minline")
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(3000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke-width': 6.5, 'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+      svg.append("path")
+          .datum(selected.properties.links[9])
+          .attr("d", path)
+          .attr("class", "minline")
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(4000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.0, 'visibility': 'visible'})
+          .transition()
+          .duration(1000)
+          .style({'fill': '#FFE801', 'fill-opacity': 0.01})
+          .style({'stroke-width': 4, 'stroke': '#81F781', 'stroke-linejoin': 'round','stroke-linecap': 'round', 'opacity': 0.9, 'visibility': 'visible'});
+
+}
 
 }
 
